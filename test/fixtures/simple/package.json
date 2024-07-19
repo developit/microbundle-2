@@ -1,0 +1,9 @@
+{
+  "name": "simple",
+  "type": "module",
+  "exports": {
+    "types": "./dist/lib.d.ts",
+    "import": "./dist/lib.js",
+    "default": "./dist/lib.cjs"
+  }
+}
