@@ -1,0 +1,21 @@
+{
+  "name": "multi-entry",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/lib.d.ts",
+      "import": "./dist/lib.js",
+      "default": "./dist/lib.cjs"
+    },
+    "./a": {
+      "types": "./dist/a.d.ts",
+      "import": "./dist/a.js",
+      "default": "./dist/a.cjs"
+    },
+    "./b": {
+      "types": "./dist/b.d.ts",
+      "import": "./dist/b.js",
+      "default": "./dist/b.cjs"
+    }
+  }
+}
