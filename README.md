@@ -4,6 +4,12 @@ What if microbundle could figure out how to bundle your library based on the `"e
 
 And what if it was also absurdly fast, and one 500kb file with a single native dependency?
 
+```sh
+npm i -g microbundle-2
+# or
+npx microbundle-2
+```
+
 This is a reimplementation of [Microbundle](https://github.com/developit/microbundle)
 built on [ESBuild](https://esbuild.github.io).
 
