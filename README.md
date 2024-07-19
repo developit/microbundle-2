@@ -7,7 +7,8 @@ And what if it was also absurdly fast, and one 500kb file with a single native d
 This is a reimplementation of [Microbundle](https://github.com/developit/microbundle)
 built on [ESBuild](https://esbuild.github.io).
 
-<img width="1007" alt="help" src="https://gist.github.com/user-attachments/assets/5979b402-c82e-4aca-a0f9-813b9966cf06">
+<img width="1007" alt="help" src="https://github.com/user-attachments/assets/f6e3f477-bb7d-4188-8b4b-6ea7ca1a4d22">
+
 
 ## Simple Example
 
@@ -24,7 +25,8 @@ You write a package.json that looks like this:
 }
 ```
 
-<img width="251" alt="simple example package" src="https://gist.github.com/user-attachments/assets/3086949c-0d51-4c12-be15-01c86294205f">
+<img width="251" alt="simple example package" src="https://github.com/user-attachments/assets/8c8b4b1e-aa43-4214-b4bb-4e32b5d856f9">
+
 
 ## Multiple entries
 
@@ -54,7 +56,7 @@ Just define your package exports the way you already have to for Node/Vite/etc:
 }
 ```
 
-<img width="317" alt="simple multi-entry package example" src="https://gist.github.com/user-attachments/assets/e1345001-f7e2-4998-a438-ae95c54f1c08">
+<img width="317" alt="simple multi-entry package example" src="https://github.com/user-attachments/assets/b2de4b6b-a13b-46c6-8940-f678de8b6ddf">
 
 This example has a dynamic import, which you can see produced a `./c` chunk. Both the ESM and CJS versions work the same way!
 
@@ -87,5 +89,5 @@ Wildcard/pattern exports are also supported:
 }
 ```
 
-<img width="448" alt="complex multi-entry example using wildcard/pattern exports" src="https://gist.github.com/user-attachments/assets/c75cdb7b-302f-4180-aff1-f50c64784ef9">
+<img width="448" alt="complex multi-entry example using wildcard/pattern exports" src="https://github.com/user-attachments/assets/36bd84f8-8f1e-4e0d-8af9-970bd9f5c218">
 
