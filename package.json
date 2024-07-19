@@ -1,11 +1,12 @@
 {
   "name": "microbundle-2",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "",
   "main": "dist/microbundle.js",
   "files": [
     "dist"
   ],
+  "bin": "dist/microbundle.js",
   "scripts": {
     "build": "node scripts/build.mjs",
     "watch": "node scripts/build.mjs --watch"
@@ -17,15 +18,16 @@
     "@types/node": "^20.14.2",
     "chalk": "^5.3.0",
     "es-module-lexer": "^1.5.3",
-    "esbuild": "^0.21.5",
+    "esbuild": "^0.23.0",
     "magic-string": "^0.30.10",
     "oxlint": "^0.4.3",
+    "preact": "^10.22.1",
     "pretty-bytes": "^6.1.1",
     "sade": "^1.8.1",
     "terser": "^5.31.1"
   },
   "peerDependencies": {
-    "esbuild": "^0.19"
+    "esbuild": "*"
   },
   "prettier": {
     "singleQuote": true

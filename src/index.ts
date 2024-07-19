@@ -233,8 +233,8 @@ async function build(args: BuildArgs) {
 		outbase: relative(resolve(cwd), resolve(src)),
 		outdir: '.',
 		splitting: true,
-		chunkNames: '[dir]/[name]',
-		assetNames: '[dir]/[name]',
+		chunkNames: '[dir]/[name]-[hash]',
+		assetNames: '[dir]/[name]-[hash]',
 		entryNames: '[dir]/[name]',
 		// jsx: 'automatic',
 		jsxSideEffects: false,
@@ -338,7 +338,6 @@ async function build(args: BuildArgs) {
 									// bugfix: esbuild uses a fairly brutal workaround for object spread,
 									// which is imported by almost every file.
 									code = code.replace(/\b__spreadValues *= *\(a, *b\) *=> *\{.*?\};/gs, '__spreadValues=(a,b)=>({__proto__: null, ...a, ...b});');
-									console.log(args.minify);
 									if (args.minify) {
 										const minified = await minify(code, {
 											...terserOpts,
@@ -383,7 +382,8 @@ async function build(args: BuildArgs) {
 											}
 											out.overwrite(imp.ss, imp.se, req);
 										} else {
-											const spec = JSON.stringify(code.substring(imp.s, imp.e));
+											const rawSpec = code.substring(imp.s, imp.e);
+											const spec = JSON.stringify(rawSpec.replace(/\.[mc]?js$/, extForFormat('cjs')));
 											let s = code.substring(imp.ss + 6, imp.s - 1)
 												.replace(/\s*from\s*/g, '')
 												.replace(/\*\s*as\s*/g, '')
@@ -395,7 +395,7 @@ async function build(args: BuildArgs) {
 												s = `$_wc_$${reexports.length}`;
 												reexports.push(s);
 											}
-											const r = `const ${s} = require(${spec})`;
+											const r = `${s ? `const ${s} = ` : ''}require(${spec})`;
 											out.overwrite(imp.ss, imp.se, r);
 										}
 										beforeStart = imp.se;
