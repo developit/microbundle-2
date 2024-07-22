@@ -39,6 +39,8 @@ function prettyBytes(value: number) {
 	return `${value}${dim('b')}`;
 }
 
+const EXCLUDED_EXTENSIONS = [/\.json$/,/\.d\.([cm]?ts)$/]
+
 interface Args {
 	cwd: string;
 	sourcemap?: boolean;
@@ -265,7 +267,7 @@ async function build(args: BuildArgs) {
 		formatsWithoutCjs.map((format) => {
 			const ext = extForFormat(format);
 
-			const eps = entryPoints.map((input, index) => ({
+			const eps = entryPoints.filter(file=>!EXCLUDED_EXTENSIONS.some(extRgx=>extRgx.test(file))).map((input, index) => ({
 				in: input,
 				out: exports[entryPaths[index]].find(m => {
 					if (format === 'cjs' && m.conditions.includes('require')) return true;
@@ -284,7 +286,7 @@ async function build(args: BuildArgs) {
 					}
 				}
 				return last;
-			}).join('/');
+			}).join('/') || "."; // outdir might be an empty string in case of root level exports
 			for (const ep of eps) ep.out = relative(outdir, ep.out);
 			// const mkdirDone = mkdir(outdir);
 
