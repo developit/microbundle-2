@@ -6,7 +6,10 @@
   "files": [
     "dist"
   ],
-  "bin": "dist/microbundle.js",
+  "bin": {
+    "microbundle-2": "dist/microbundle.js",
+    "microbundle": "dist/microbundle.js"
+  },
   "scripts": {
     "build": "node scripts/build.mjs",
     "watch": "node scripts/build.mjs --watch"
@@ -31,5 +34,6 @@
   },
   "prettier": {
     "singleQuote": true
-  }
+  },
+  "packageManager": "pnpm@8.15.9"  
 }
