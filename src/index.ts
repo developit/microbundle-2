@@ -412,6 +412,8 @@ async function build(args: BuildArgs) {
 											};
 											await Promise.all(
 												result.outputFiles!.map(async (file, index) => {
+													if (file.path.endsWith('.css')) return;
+
 													const output = outputs[index];
 													let code = file.text;
 													// bugfix: esbuild uses a fairly brutal workaround for object spread,
@@ -421,17 +423,23 @@ async function build(args: BuildArgs) {
 														'__spreadValues=(a,b)=>({__proto__: null, ...a, ...b});'
 													);
 													if (args.minify) {
-														const minified = await minify(code, {
-															...terserOpts,
-															mangle: {
-																...Object(terserOpts.mangle),
-																reserved: output.exports,
-															},
-															sourceMap: args.sourcemap && {
-																content: 'inline',
-															},
-														});
-														code = minified.code!;
+														try {
+															var minified = await minify(code, {
+																...terserOpts,
+																mangle: {
+																	...Object(terserOpts.mangle),
+																	reserved: output.exports,
+																},
+																sourceMap: args.sourcemap && {
+																	content: 'inline',
+																},
+															});
+															code = minified.code!;
+														} catch (err) {
+															const line = code.split('\n')[err.line - 1];
+															console.error(`Terser error at ${file.path}:${err.line}:${err.col}:\n\n  ${line}\n  ${'-'.repeat(err.col)}^\n\n${err.message}`);
+															throw err;
+														}
 													}
 													// update metafile size with terser-minified size:
 													result.metafile!.outputs[
@@ -548,11 +556,13 @@ async function build(args: BuildArgs) {
 															suffix.push(`module.exports={${list.join(',')}}`);
 													}
 
-													out.overwrite(
-														code.slice(0, exports[0].s).lastIndexOf('export'),
-														code.indexOf('}', exports.at(-1)!.e) + 1,
-														suffix.join(';')
-													);
+													if (exports[0]) {
+														out.overwrite(
+															code.slice(0, exports[0].s).lastIndexOf('export'),
+															code.indexOf('}', exports.at(-1)!.e) + 1,
+															suffix.join(';')
+														);
+													}
 
 													if (reexports) {
 														const mapped = reexports.map(
