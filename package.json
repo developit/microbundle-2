@@ -3,6 +3,7 @@
   "version": "0.2.0",
   "description": "",
   "main": "dist/microbundle.js",
+  "type": "module",
   "files": [
     "dist"
   ],
@@ -12,7 +13,8 @@
   },
   "scripts": {
     "build": "node scripts/build.mjs",
-    "watch": "node scripts/build.mjs --watch"
+    "watch": "node scripts/build.mjs --watch",
+    "test": "node --test test/*.test.js"
   },
   "keywords": [],
   "author": "Jason Miller <jason@developit.ca>",

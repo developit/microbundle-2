@@ -8,6 +8,17 @@ import { initialize, context, type BuildOptions, type Format } from 'esbuild';
 import MagicString from 'magic-string';
 import { parse } from 'es-module-lexer';
 import { minify, type MinifyOptions } from 'terser';
+import {
+        bold,
+        underline,
+        dim,
+        brightBlue,
+        brightWhite,
+        padAnsi,
+        prettyBytes,
+} from './utils.js';
+import { getExports } from './get-exports.js';
+import { looseResolve } from './loose-resolve.js';
 
 // start the esbuild service early
 initialize({});
@@ -19,27 +30,6 @@ initialize({});
 // 	const {minify} = await import('terser');
 // 	return {MagicString, parse, minify};
 // })();
-
-const color =
-	(code: number, end: number) => (str: string | TemplateStringsArray) =>
-		`\x1B[${code}m${str}\x1B[${end}m`;
-const bold = color(1, 22);
-const underline = color(4, 24);
-const dim = color(2, 22);
-// const red = color(31, 39);
-const brightBlue = color(94, 39);
-const brightWhite = color(97, 39);
-const deAnsi = (str: string) => str.replace(/\x1B\[\d+m/g, '');
-const padAnsi = (str: string, len: number, padding?: string) => {
-	const count = len - deAnsi(str).length;
-	return str.padEnd(str.length + count, padding);
-};
-
-function prettyBytes(value: number) {
-	if (value > 1.5e6) return `${Number((value / 1e6).toFixed(1))}${dim('mb')}`;
-	if (value > 1.5e3) return `${Number((value / 1e3).toFixed(1))}${dim('kb')}`;
-	return `${value}${dim('b')}`;
-}
 
 interface Args {
 	cwd: string;
@@ -64,91 +54,11 @@ type ExportCondition =
 	| 'typings';
 
 type PackageExports =
-	| ({ [K in ExportCondition]: PackageExports } & {
-			[K in ExportCondition]?: PackageExports;
-	  })
-	| { [K in '.' | `./${string}`]: PackageExports }
-	| string;
-
-// function getExports(exports: PackageExports, map: Record<string, {mapped: string, conditions: string[]}[]> = {}, path = '.', conditions: string[] = []): {path: string, mapped: string, conditions: string[]}[] {
-function getExports(
-	exports: PackageExports,
-	map: Record<string, { mapped: string; conditions: string[] }[]> = {},
-	path = '.',
-	conditions: string[] = []
-) {
-	if (typeof exports === 'string') {
-		conditions = Array.from(new Set(conditions)).sort();
-		// return [{path, mapped: exports, conditions}];
-		let c = map[path] || (map[path] = []);
-		if (!c.find((c) => c.conditions.join('\n') === conditions.join('\n'))) {
-			c.push({ mapped: exports, conditions });
-		}
-		return map;
-	}
-	// if ('.' in exports) return getExports(exports['.'], map, path, conditions);
-	let isPath: boolean | undefined;
-	for (let key in exports) {
-		if (isPath === undefined) isPath = key[0] === '.';
-		if ((key[0] === '.') !== isPath) {
-			throw Error(
-				`Package Exports cannot contain mixed conditions and paths: ${Object.keys(
-					exports
-				)}`
-			);
-		}
-		if (isPath) {
-			getExports(exports[key], map, posix.join(path, key), conditions.slice());
-		} else {
-			const childConditions =
-				key === 'default' ? conditions.slice() : conditions.concat(key);
-			getExports(exports[key as ExportCondition], map, path, childConditions);
-		}
-	}
-	return map;
-	// return results.flat();
-}
-
-/*
-console.log(
-	getExports('./test.js')
-);
-console.log(
-	getExports({
-		'.': './test.js',
-	})
-);
-console.log(
-	getExports({
-		module: './test.js',
-	})['.']
-);
-console.log(
-	getExports({
-		import: './test.mjs',
-		default: './test.js',
-	})['.']
-);
-*/
-
-async function looseResolve(cwd: string, file: string) {
-	if (file.includes('*')) return `./${relative(cwd, file)}`;
-	const stat = await fs.stat(file).catch(() => null);
-	if (stat?.isDirectory()) return looseResolve(cwd, `${file}/index`);
-	if (file.match(/\.[cm]js$/)) return `./${relative(cwd, file)}`;
-	return (
-		(
-			await Promise.all(
-				['.ts', '.tsx', '.jsx', '.mjs', '.cjs', '.js'].map(async (ext) => {
-					const f = `./${relative(cwd, file + ext)}`;
-					try {
-						if ((await fs.stat(resolve(cwd, f))).isFile()) return f;
-					} catch {}
-				})
-			)
-		).find(Boolean) ?? file
-	);
-}
+        | ({ [K in ExportCondition]: PackageExports } & {
+                        [K in ExportCondition]?: PackageExports;
+          })
+        | { [K in '.' | `./${string}`]: PackageExports }
+        | string;
 
 async function build(args: BuildArgs) {
 	const cwd = args.cwd || process.cwd();
